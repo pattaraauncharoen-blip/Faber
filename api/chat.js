@@ -23,9 +23,21 @@ async function callGemini(payload) {
   return r;
 }
 
+async function verify(req) {
+  const h = req.headers.authorization || "";
+  const t = h.startsWith("Bearer ") ? h.slice(7) : "";
+  if (!t) return false;
+  const r = await fetch(
+    "https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=" + process.env.FIREBASE_API_KEY,
+    { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ idToken: t }) }
+  );
+  return r.ok;
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "method" });
   try {
+    if (!(await verify(req))) return res.status(401).json({ error: "auth" });
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
     let msgs = Array.isArray(body && body.messages) ? body.messages : [];
     msgs = msgs
