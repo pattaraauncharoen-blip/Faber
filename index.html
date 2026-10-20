@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Faber</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f4ef;--surface:#ffffff;--text:#1f2430;--muted:#6b7280;--line:#e5e1d8;
+  --accent:#e8743b;--accent-text:#ffffff;--user-bg:#e8743b;--user-text:#ffffff;--bot-bg:#ffffff;--bot-text:#1f2430;--chip:#fff1e8;
+  color-scheme:light;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#16181d;--surface:#20232b;--text:#eceef2;--muted:#9aa1ae;--line:#2d313b;
+    --accent:#f08a54;--accent-text:#1a1208;--user-bg:#f08a54;--user-text:#1a1208;--bot-bg:#20232b;--bot-text:#eceef2;--chip:#2a2520;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16181d;--surface:#20232b;--text:#eceef2;--muted:#9aa1ae;--line:#2d313b;
+  --accent:#f08a54;--accent-text:#1a1208;--user-bg:#f08a54;--user-text:#1a1208;--bot-bg:#20232b;--bot-text:#eceef2;--chip:#2a2520;
+  color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:"Noto Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column;max-width:760px;margin-inline:auto;line-height:1.6}
+header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
+.logo{width:40px;height:40px;border-radius:12px;background:var(--accent);color:var(--accent-text);display:grid;place-items:center;font-weight:700;font-size:22px}
+header h1{font-size:18px;margin:0;line-height:1.2}
+header p{margin:0;font-size:13px;color:var(--muted)}
+#msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.m{max-width:85%;padding:10px 14px;border-radius:18px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;font-size:15.5px}
+.m.bot{align-self:flex-start;background:var(--bot-bg);color:var(--bot-text);border:1px solid var(--line);border-bottom-left-radius:6px}
+.m.user{align-self:flex-end;background:var(--user-bg);color:var(--user-text);border-bottom-right-radius:6px}
+.m code{background:rgba(127,127,127,.18);padding:1px 5px;border-radius:5px;font-size:.92em}
+.m pre{background:rgba(127,127,127,.15);padding:10px;border-radius:10px;overflow-x:auto;margin:6px 0;white-space:pre}
+.hello{text-align:center;margin:auto 0;padding:8px}
+.hello h2{margin:8px 0 4px;font-size:22px}
+.hello p{margin:0 0 16px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.chip{border:1px solid var(--line);background:var(--chip);color:var(--text);font:inherit;font-size:14px;padding:8px 14px;border-radius:999px;cursor:pointer}
+.chip:active{transform:scale(.97)}
+.dots span{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:var(--muted);animation:b 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{opacity:.3}40%{opacity:1}}
+form{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line);background:var(--bg)}
+textarea{flex:1;resize:none;font:inherit;font-size:16px;padding:10px 14px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--text);max-height:120px;outline:none}
+textarea:focus{border-color:var(--accent)}
+button.send{width:44px;height:44px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-text);font-size:20px;cursor:pointer;align-self:flex-end}
+button.send:disabled{opacity:.45;cursor:default}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">F</div>
+  <div><h1>Faber</h1></div>
+</header>
+<div id="msgs">
+  <div class="hello" id="hello">
+    <h2>สวัสดี! เราชื่อ Faber 👋</h2>
+    <p>ถามอะไรก็ได้ คุยกันแบบเพื่อนเลย</p>
+    <div class="chips">
+      <button class="chip">อธิบายเรื่องยากๆ ให้เข้าใจง่าย</button>
+      <button class="chip">ช่วยคิดไอเดีย</button>
+      <button class="chip">ช่วยเขียนข้อความ</button>
+      <button class="chip">ช่วยวางแผนให้หน่อย</button>
+    </div>
+  </div>
+</div>
+<form id="f">
+  <textarea id="q" rows="1" placeholder="พิมพ์ถาม Faber ได้เลย…"></textarea>
+  <button class="send" id="go" type="submit" aria-label="ส่ง">➤</button>
+</form>
+<script>
+(function(){
+  var msgs = document.getElementById("msgs"), q = document.getElementById("q"), go = document.getElementById("go"), f = document.getElementById("f");
+  var history = [], busy = false;
+
+  function esc(t){ return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function fmt(t){
+    var h = esc(t);
+    h = h.replace(/```(?:\w+)?\n?([\s\S]*?)```/g, function(_,c){ return "<pre>"+c+"</pre>"; });
+    h = h.replace(/`([^`\n]+)`/g, "<code>$1</code>");
+    h = h.replace(/\*\*([^*\n]+)\*\*/g, "<b>$1</b>");
+    h = h.replace(/^[-*] /gm, "• ").replace(/^#{1,3} (.*)$/gm, "<b>$1</b>");
+    return h;
+  }
+  function add(role, text){
+    var d = document.createElement("div");
+    d.className = "m " + role;
+    if(role === "user") d.textContent = text; else d.innerHTML = text;
+    msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight; return d;
+  }
+  function setBusy(b){ busy = b; go.disabled = b; }
+
+  async function send(text){
+    text = (text || "").trim();
+    if(!text || busy) return;
+    var hello = document.getElementById("hello"); if(hello) hello.remove();
+    add("user", text);
+    history.push({role:"user", content:text});
+    q.value = ""; q.style.height = "auto";
+    var bubble = add("bot", '<span class="dots"><span></span><span></span><span></span></span>');
+    setBusy(true);
+    try{
+      var res = await fetch("/api/chat", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({messages: history.slice(-12)})});
+      var data = await res.json();
+      if(!res.ok) throw new Error(data.error || "error");
+      bubble.innerHTML = fmt(data.text);
+      history.push({role:"assistant", content:data.text});
+    }catch(e){
+      bubble.textContent = "ขอโทษนะ มีบางอย่างผิดพลาด ลองส่งใหม่อีกครั้ง";
+      history.pop();
+    }
+    setBusy(false); msgs.scrollTop = msgs.scrollHeight;
+  }
+  f.addEventListener("submit", function(e){ e.preventDefault(); send(q.value); });
+  q.addEventListener("input", function(){ q.style.height = "auto"; q.style.height = Math.min(q.scrollHeight,120)+"px"; });
+  q.addEventListener("keydown", function(e){ if(e.key==="Enter" && !e.shiftKey && !e.isComposing && window.innerWidth>700){ e.preventDefault(); send(q.value); } });
+  document.querySelectorAll(".chip").forEach(function(c){ c.addEventListener("click", function(){ send(c.textContent); }); });
+})();
+</script>
+</body>
+</html>
